@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book検索</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .bookWrap {
+            margin: 100px auto;
+            width: 1000px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #333;
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+        }
+
+        table {
+            border: 1px solid #333;
+            border-collapse: collapse;
+
+        }
+
+        .td1 {
+            width: 600px;
+        }
+
+        .td2 {
+            width: 200px;
+        }
+
+        .td3 {
+            width: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bookWrap">
+        <h1>Book検索</h1>
+        <div>
+            <input type="text" id="key" onkeydown="Click()">
+            <button id="send">検索</button>
+
+            <div class="bookArea">
+                <table class="bookList">
+                    <tr>
+                        <td class="td1">書籍名</td>
+                        <td class="td2">出版社</td>
+                        <td class="td3">画像</td>
+
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const key = document.querySelector('#key');
+
+        //ajaxリクエスト関数にする
+        function bookAjax() {
+            const url = "https://www.googleapis.com/books/v1/volumes?q=" + key.value;
+            console.log('ok');
+            axios({
+                url: url,
+                method: 'get'
+            }).then(result => {
+                //基本要素取得
+                //1.書籍名、2．出版社、3．サムネイル、4．リンク
+                console.log(result);
+                let data = result.data.items;
+
+                let str = '';
+                data.forEach((item) => {
+                    if (typeof item.volumeInfo.publisher == "undefined") {
+                        item.volumeInfo.publisher = "出版社不明"
+                    }
+                    str += `<tr>
+                                <td class="td1">${item.volumeInfo.title}</td>
+                                <td class="td2">${item.volumeInfo.publisher}</td>
+                                <td class="td3">
+                                        <a href="${item.volumeInfo.infoLink}">
+                                            <img src="${item.volumeInfo.imageLinks.thumbnail}.png">
+                                        </a>
+                                    </td>
+                        </tr>`
+                });
+                document.querySelector('.bookList').innerHTML = `<tr>
+                        <td class="td1">書籍名</td>
+                        <td class="td2">出版社</td>
+                        <td class="td3">画像</td>
+                    </tr>`+ str;
+            })
+        }
+
+        //検索ボタン押す検索
+        document.querySelector('#send').onclick = function () {
+            bookAjax();
+        }
+        //enterキーを押す検索
+        function Click() {
+            if (event.keyCode == 13) {
+                bookAjax();
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>
